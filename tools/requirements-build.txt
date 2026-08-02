@@ -1,0 +1,3 @@
+# Build-time dependencies (on the machine that runs build_release.py).
+# Install with: pip install -r tools/requirements-build.txt
+pyinstaller==6.21.0

@@ -1,0 +1,134 @@
+# usblm-v1-meerk40t
+
+A complete working setup for the BJJCZ "USBLM-V1" (VID_9588, PID_9999)
+galvo board on a modern 64-bit Windows PC, using
+[MeerK40t](https://github.com/meerk40t/meerk40t) as the laser software.
+
+## What this is
+
+The V1 board was sold with EZCAD, JCZ's closed Windows-only marking software.
+EZCAD only runs on 32-bit Windows with JCZ's kernel driver and a hardware
+license dongle, so the board has effectively been unusable on Windows 10/11
+x64 except inside an old OS VM.
+
+This project removes that dependency. It contains:
+
+- a USB controller for the V1 board, driven purely in userspace through
+  pyusb/libusb (WinUSB driver; no kernel vendor driver involved),
+- automatic firmware upload: the board enumerates as a loader (PID 9990)
+  and needs its firmware loaded before it becomes the marking device
+  (PID 9999),
+- a MeerK40t profile (shim) that teaches MeerK40t's galvo driver (balormk)
+  the V1's wire protocol, so the board shows up as a normal galvo device in
+  the GUI,
+- a GUI setup panel (`SetupPanel.exe`) that installs everything on a fresh
+  PC,
+- hardware tests and a self-test, plus the full protocol documentation.
+
+The wire protocol was reverse-engineered from USB captures of EZCAD 2.5.3
+driving the board; `docs/REVERSE_ENGINEERING.md` documents how.
+
+## Status
+
+Verified working end to end on the physical board through the MeerK40t GUI:
+marking, multi-direction fills, raster engraving, red-light trace and
+live-outline. The board's quirks (chunked job lists, buffered execution,
+paused-state behaviour on StopList, firmware reload after a USB bus reset)
+are handled in the shim and documented in `docs/PROTOCOL.md`.
+
+## For users: the package
+
+The release packages are published in the GitHub Releases of this repo.
+Download the zip, extract it, and run `SetupPanel.exe` from the extracted
+folder:
+
+1. **Install Software** - installs Python, all packages and
+   device settings.
+2. **Install USB Driver** - binds the board to WinUSB with the signed
+   `zadig.exe` that ships in the package (one permission prompt - click
+   Yes; in the Zadig window pick "USBLM-V1" and click Install Driver).
+   The board re-enumerates afterwards (briefly disappears/reappears) -
+   normal.
+3. **Run Self-Test** - expect `5 passed, 0 failed`.
+4. **Launch MeerK40t** - start marking.
+
+Full end-user instructions: `installer/STEPS.md`. The pre-configured laser
+power is **30%**.
+
+## For developers
+
+```bash
+# From source
+pip install pyusb libusb meerk40t wxPython ezdxf pillow numpy
+python src/run_meerk40t.py                 # GUI with the shim pre-loaded
+
+# Hardware self-test (no laser fires)
+python tests/selftest.py                   # expect 5/5 PASS
+
+# Library use
+from v1_controller import V1Controller
+ctrl = V1Controller()
+ctrl.connect()          # auto-uploads firmware if the board is in loader mode
+ctrl.init()
+ctrl.goto(0x8000, 0x8000)
+ctrl.mark([(0x6000, 0x6000), (0xA000, 0x6000)])   # 0x8000 = field center
+```
+
+### Repository layout
+
+```
+src/             the USB controller + the MeerK40t/galvoplotter shims
+installer/       everything that becomes the package: SetupPanel source,
+                 install/driver/launch scripts, config, end-user docs
+tests/           hardware tests, mock tests, selftest, CI test
+tools/           build_release.py + PyInstaller specs (makes the package)
+docs/            protocol, reverse engineering guide, build guide
+data/            firmware image + verified protocol reference
+```
+
+The released package (`setup/`, built by `tools/build_release.py`) is
+fully self-contained: the apps and docs at the top level, everything
+else in subfolders. Nothing is written outside the package except the
+device settings in the standard MeerK40t location:
+
+```
+setup/  (the zip users download)
+├── SetupPanel.exe / MeerK40t-V1.exe    the apps (run SetupPanel.exe first)
+├── README.md / STEPS.md                end-user docs
+├── app/     shims + USB stack (runs in place from this folder)
+├── scripts/ install.bat, bind_winusb.cmd, run_meerk40t.cmd,
+│            selftest.cmd, diag.cmd
+├── tools/   zadig.exe (signed WinUSB driver tool)
+├── config/  MeerK40t.cfg (deployed to the standard MeerK40t location)
+├── tests/   selftest.py / diag_info.py
+├── data/    v1_upload_sequence.dat (firmware)
+├── offline/ bundled Python + pip + wheelhouse (installer-only)
+├── runtime/ bundled Python, extracted at install time
+└── logs/    every log the panel and the scripts produce
+```
+
+### The shims
+
+- `src/v1_meerk40t.py` - patches MeerK40t's embedded balormk driver for the
+  V1 wire layout. This is what the GUI uses.
+- `src/v1_galvoplotter.py` - the same profile for the standalone
+  galvoplotter library.
+
+Both implement the same verified V1 profile: commands on EP 0x01 (14-byte
+packets with the 0x0002 prefix), 10-byte responses on EP 0x81, 3072-byte
+list chunks on EP 0x02, the board's chunk-ack drain, the buffered job model
+(queue all chunks, then execute once), and auto firmware upload from loader
+mode (PID 9990).
+
+### Documentation
+
+- `docs/PROTOCOL.md` - the full verified wire protocol
+- `docs/REVERSE_ENGINEERING.md` - how the protocol was captured and decoded
+- `docs/BUILDING.md` - build the offline package from source
+- `docs/TROUBLESHOOTING.md` - what to do when something doesn't work
+- `docs/LINUX.md` - running on Linux/Mac (works; no driver step)
+
+## License
+
+MIT (our code). Third-party components and the JCZ firmware image are
+covered in [THIRD_PARTY.md](THIRD_PARTY.md).
