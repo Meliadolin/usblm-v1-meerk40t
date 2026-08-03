@@ -13,7 +13,7 @@ source code.
 | Wireshark | read the .pcap, follow USB transfer streams |
 | Python + pyusb | probe the board directly (send/receive) |
 | galvoplotter (MIT, open source) | its command constants + protocol expectations |
-| The vendor's own Windows software | the thing we observe (EZCAD 2.5.3 here) |
+| The vendor's own Windows software | the thing observed (EZCAD 2.5.3 here) |
 
 You also need a machine that runs the vendor software. For EZCAD that means
 a 32-bit Windows box with the license dongle - the board itself is a dumb
@@ -35,14 +35,14 @@ at the other end.
 ## Step 2: sort the noise from the signal
 
 USBPcap gives you every USB transfer, including the vendor software's
-polling. The useful pattern in our captures:
+polling. The useful pattern in the captures:
 
 - the board's endpoints are visible as `2.1.0` / `2.2.0` (config/interface)
 - bulk transfers on EP 0x01 OUT / EP 0x81 IN are the command channel
 - bulk transfers on EP 0x02 OUT are the list/job data channel
 - control transfers to the FX2 (0xA0 vendor request) are the firmware upload
 
-Our `fw_markrun.pcap` was the key capture: a big fill job where EZCAD
+`fw_markrun.pcap` was the key capture: a big fill job where EZCAD
 queues 13 chunks of 3072 bytes, then sits and polls for 82 seconds while
 the board executes. That one capture proved the buffered job model.
 
@@ -64,7 +64,7 @@ speaks the same protocol family. `galvoplotter/balormk` documents the JCZ
 ## Step 4: verify each guess on hardware
 
 A capture tells you what the vendor does, not what the board *requires*.
-The final step is the loop we did with `tests/`:
+The final step is the verification loop in `tests/`:
 
 1. write a probe that sends one candidate command and reads the response
 2. run it on the real board, check the board's actual behavior
@@ -73,7 +73,7 @@ The final step is the loop we did with `tests/`:
 4. keep the probes as tests - `tests/test_capabilities.py` is exactly this,
    still runnable as regression
 
-This is how we caught the three things a capture alone can't show:
+This is what the live probes caught that a capture alone can't show:
 the chunk-ack desync, the 2-byte progress handshake before chunk writes,
 and the 0x8000 mark flag requirement.
 
@@ -94,7 +94,7 @@ The method is board-agnostic:
 4. verify every guess with a live probe on the board
 5. document only what survived step 4
 
-If you find a nicer capture than ours, or verify something we marked
-unverified (the 0x0015 cor-table payload is the one we know is missing),
+If you find a better capture, or verify something marked
+unverified (the 0x0015 cor-table payload is known to be missing),
 please open an issue or PR - the whole point of documenting this is that
 the knowledge outlives the hardware.

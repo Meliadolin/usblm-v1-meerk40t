@@ -92,7 +92,7 @@ else in subfolders. Nothing is written outside the package except the
 device settings in the standard MeerK40t location:
 
 ```
-setup/  (the zip users download)
+setup/
 ├── SetupPanel.exe / MeerK40t-V1.exe    the apps (run SetupPanel.exe first)
 ├── README.md / STEPS.md                end-user docs
 ├── app/     shims + USB stack (runs in place from this folder)
@@ -130,5 +130,5 @@ mode (PID 9990).
 
 ## License
 
-MIT (our code). Third-party components and the JCZ firmware image are
+MIT. Third-party components and the JCZ firmware image are
 covered in [THIRD_PARTY.md](THIRD_PARTY.md).

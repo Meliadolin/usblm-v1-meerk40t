@@ -1,15 +1,15 @@
 # Third-party components
 
 Everything in this repository and in the pre-built release packages that is
-not our own code, and what license applies to it. All of these are free to
-redistribute; the release packages ship the license texts with them where
-required.
+not this project's code, and what license applies to it. All of these are
+free to redistribute; the release packages ship the license texts with
+them where required.
 
 ## Bundled in the release package (runtime)
 
 | Component | Version | License | Notes |
 |---|---|---|---|
-| MeerK40t | 0.9.9100 | MIT | The GUI/marking application we extend |
+| MeerK40t | 0.9.9100 | MIT | The GUI/marking application this project extends |
 | galvoplotter | (MeerK40t's balormk fork) | MIT | Board communication layer |
 | wxPython | 4.2.2 | wxWindows Library Licence | GUI toolkit (LGPL-compatible) |
 | pyusb | 1.3.1 | BSD-3-Clause | USB access |
@@ -40,12 +40,12 @@ required.
 
 ## The JCZ firmware image (`data/v1_upload_sequence.dat`)
 
-This file is **not** our code and is **not** open source. It is the boot
-firmware image that JCZ's official `LMCUSB.sys` Windows driver uploads to
-USBLM-V1 boards on every plug-in, replayed by our `upload_firmware.py`
-instead of the vendor driver.
+This file is **not** this project's code and is **not** open source. It is
+the boot firmware image that JCZ's official `LMCUSB.sys` Windows driver
+uploads to USBLM-V1 boards on every plug-in, replayed by
+`upload_firmware.py` instead of the vendor driver.
 
-We distribute it because the board is useless without it: the board's ROM
+It is bundled because the board is useless without it: the board's ROM
 loader (PID 9990) only accepts this exact image, and JCZ provides no
 downloadable copy. If you are JCZ and want it taken down, open an issue and
 it will be removed immediately.

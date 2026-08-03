@@ -7,8 +7,8 @@ What this does, in order:
      only on the first run; later runs work offline.
   2. Fill the wheelhouse (pip download, pinned versions) if missing.
   3. Build the two onefile executables with PyInstaller from the specs.
-  4. Assemble the complete setup/ package (the thing that is handed out:
-     installer scripts, shims, firmware, docs).
+  4. Assemble the complete setup/ package: installer scripts, shims,
+     firmware, docs.
 
 Run from the repository root:
     python tools\\build_release.py            # full build
@@ -45,7 +45,7 @@ GET_PIP = {
 }
 PYINSTALLER = "6.21.0"
 
-# Zadig installs the WinUSB driver (the board's INF cannot be signed by us;
+# Zadig installs the WinUSB driver (the board's INF cannot be signed;
 # pnputil rejects unsigned INFs, so the signed zadig.exe is the driver path).
 ZADIG = {
     "file": "zadig.exe",

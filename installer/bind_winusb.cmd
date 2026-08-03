@@ -72,7 +72,7 @@ if "%OK%"=="YES" (
     echo         Details: %LOG%
     echo         Common causes:
     echo           - Zadig was closed before "Install Driver" was clicked
-    echo           - The board is not plugged in (it must be plugged in)
+    echo           - The board is not plugged in
     echo           - The board was not picked in the dropdown
     echo         Just run this again - zadig is pre-configured.
 )

@@ -59,8 +59,8 @@ traceback (the exe has no console). Common causes:
 
 ### Selftest passes but the board doesn't mark
 - Laser power 0 / MO closed - check Device settings.
-- Check the E-stop is released (press = STOP; ours was wired
-  backwards from the factory - verify on every machine).
+- Check the E-stop is released (press = STOP; the factory wiring can be
+  backwards - verify on every machine).
 - The beam may be invisible (IR laser) - the job could be running
   while you see nothing. Test with a small mark on scrap material at
   low power.

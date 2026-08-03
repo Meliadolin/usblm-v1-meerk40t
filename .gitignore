@@ -23,7 +23,7 @@ data/fw_capture*.pcap
 data/fw_markrun.pcap
 data/fw_upload.pcap
 
-# Internal working notes (AI session transcripts, scratch)
+# Working notes (session logs, scratch)
 docs/session-ses_*.md
 docs/TASK.txt
 docs/RESEARCH_V1_ECOSYSTEM.md
@@ -32,15 +32,15 @@ TASK.txt
 # Local release notes (kept out of the public repo)
 CHANGELOG.md
 
-# Raw machine dumps from the research PC (win7 driver/registry research
-# scratch - kept on disk, not published)
+# Raw machine dumps (win7 driver/registry research scratch - kept on
+# disk, not published)
 docs/reference/
 
 # Logs
 *.log
 logs/
 
-# Debug output dumps (session scratch)
+# Debug output dumps (scratch)
 *_out.txt
 big_raster.txt
 

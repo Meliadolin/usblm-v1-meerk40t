@@ -1,6 +1,6 @@
 # USB Capture Jobs - Settings for EZCAD 2.5.3 (Win7 laptop)
 
-Goal: capture EZCAD 2.5.3 sessions with USBPcap so we can (a) fix the
+Goal: capture EZCAD 2.5.3 sessions with USBPcap to (a) fix the
 galvoplotter V1 run-end bug (0x0226) and (b) decode the raster data path.
 
 ## What to take to the laptop
@@ -30,7 +30,7 @@ galvoplotter V1 run-end bug (0x0226) and (b) decode the raster data path.
 1. Boot laptop, plug dongle + board, start EZCAD 2.5.3
 2. Start USBPcap capture (use D:\capture.cmd, 180s window is fine)
 3. Mark job 1 (SQUARE) - wait for the run to FULLY finish
-4. Wait ~5 seconds (this gap matters - we study the post-run state)
+4. Wait ~5 seconds (this gap matters - watch the post-run state)
 5. Mark job 2 (SQUARE_LONG) - wait, ~5s gap
 6. Mark job 3 (HATCHED) - wait, ~5s gap
 7. Select RASTER entity only, mark it - wait, ~5s gap
@@ -38,8 +38,8 @@ galvoplotter V1 run-end bug (0x0226) and (b) decode the raster data path.
 
 Total EZCAD window: ~120 seconds if done briskly.
 
-## What the captures will tell us
+## What the captures will show
 - Capture 1-3: the exact post-run command sequence + state words
   (0x0224 -> 0x0220 vs 0x0226) -> fixes the galvoplotter hang
 - Capture 4: the raster data path (likely EP 0x04 / BmpBuffer commands)
-  -> completes our "full control" coverage
+  -> completes the "full control" coverage

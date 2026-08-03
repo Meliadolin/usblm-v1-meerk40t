@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Red dot probe: cycle GPIO port bits so we can see which one (if any)
+"""Red dot probe: cycle GPIO port bits to see which one (if any)
 drives the aiming laser. NO list is executed and MO stays closed, so
 the marking laser cannot fire."""
 import os

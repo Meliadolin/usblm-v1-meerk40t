@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================
-rem  MeerK40t + USBLM-V1 - ONE-CLICK install
+rem  MeerK40t + USBLM-V1 - one-click install
 rem  Everything needed is in this folder: bundled Python, all
 rem  packages, drivers. No system Python needed.
 rem ============================================================
@@ -125,7 +125,7 @@ echo
 echo  1. Plug in the laser
 echo  2. Run scripts\bind_winusb.cmd  (or see STEPS.md)
 echo  3. Run scripts\selftest.cmd     (expect 5/5 PASS)
-echo  4. Double-click "MeerK40t V1" and mark!
+echo  4. Double-click "MeerK40t V1" and mark.
 echo ============================================
 echo Full log: %LOG%
 pause

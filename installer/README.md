@@ -46,7 +46,7 @@ The shim also:
 | Symptom | Fix |
 |---|---|
 | selftest "board found" fails | Board unplugged, or WinUSB not bound (STEPS.md step 2) |
-| GUI crash on start | Last 10 lines of logs\meerk_trace.log tell us where |
+| GUI crash on start | Last 10 lines of logs\meerk_trace.log show where |
 | Job hangs | Close GUI, check logs\meerk_trace.log, report it |
 | Board shows "Unknown Device" | WinUSB binding missing - run `scripts\bind_winusb.cmd` (STEPS.md step 2) |
 | pip install fails | No internet / firewall; retry, check logs\install_log.txt |

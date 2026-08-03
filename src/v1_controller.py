@@ -382,7 +382,7 @@ class V1Controller:
         The board executes records in REAL-TIME from the EP0x02 pipe -
         EZCAD re-sends the same 3072B chunk on every poll cycle (~16ms)
         until the run ends. The board LOOPS the list while the host
-        streams, so we time-limit the run (like EZCAD does).
+        streams, so the run is time-limited (like EZCAD does).
         stop=True: send the end-of-session stop sequence (only at the
         very end, matching EZCAD - it does NOT stop between runs)."""
         if settings is None:
@@ -425,7 +425,7 @@ class V1Controller:
         self._try_cmd(0x0016, 0x0001)       # control mode
 
         # time-limit: estimate from total distance / speed. EZCAD uses a
-        # computed duration; the board loops while we stream.
+        # computed duration; the board loops while streaming.
         if duration is None:
             total_dist = 0
             for r in records:

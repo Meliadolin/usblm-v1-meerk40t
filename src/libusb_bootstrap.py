@@ -12,7 +12,7 @@ Why this is needed (fresh PC):
 
 Fix (both mechanisms, belt and suspenders):
 1. Prepend the DLL folder to PATH (so find_library finds it)
-2. Shim ctypes.util.find_library to return our DLL deterministically
+2. Shim ctypes.util.find_library to return the bundled DLL deterministically
 """
 import ctypes.util
 import os
