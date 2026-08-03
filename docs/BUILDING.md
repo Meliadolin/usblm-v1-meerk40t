@@ -67,7 +67,7 @@ All version pins live in `tools/`:
 
 | File | What it pins |
 |---|---|
-| `tools/requirements-runtime.txt` | the 19 runtime packages (bundled in the package) |
+| `tools/requirements-runtime.txt` | the 20 runtime packages (bundled in the package) |
 | `tools/requirements-build.txt` | PyInstaller |
 | `tools/build_release.py` | Python embed version + SHA-256s, PyInstaller version |
 

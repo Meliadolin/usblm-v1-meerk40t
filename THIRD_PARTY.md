@@ -10,7 +10,7 @@ them where required.
 | Component | Version | License | Notes |
 |---|---|---|---|
 | MeerK40t | 0.9.9100 | MIT | The GUI/marking application this project extends |
-| galvoplotter | (MeerK40t's balormk fork) | MIT | Board communication layer |
+| galvoplotter | 0.2.0 | MIT | Board communication layer (standalone lib; the shim also patches MeerK40t's embedded balormk fork) |
 | wxPython | 4.2.2 | wxWindows Library Licence | GUI toolkit (LGPL-compatible) |
 | pyusb | 1.3.1 | BSD-3-Clause | USB access |
 | libusb-1.0.dll | 1.0.x | LGPL-2.1-or-later | Dynamically loaded, not linked in |
