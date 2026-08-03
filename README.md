@@ -64,7 +64,9 @@ python src/run_meerk40t.py                 # GUI with the shim pre-loaded
 
 # Hardware self-test (no laser fires)
 python tests/selftest.py                   # expect 5/5 PASS
+```
 
+```python
 # Library use
 from v1_controller import V1Controller
 ctrl = V1Controller()
