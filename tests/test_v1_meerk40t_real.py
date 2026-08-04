@@ -61,6 +61,11 @@ class FakeService:
     def signal(self, *a, **k):
         pass
 
+    def __call__(self, *a, **k):
+        # Kernel services are callable (console commands); connect_if_needed
+        # runs "clone_init" on first failure and relies on the retry loop.
+        return None
+
     class _View:
         @staticmethod
         def position(*a, **k):

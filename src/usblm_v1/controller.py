@@ -12,7 +12,7 @@ import time
 import meerk40t.balormk.controller as mk_ctrl
 
 from .trace import trace
-from .transport import RESP_EP  # noqa - pulls libusb_bootstrap + usb.core first
+from .transport import RESP_EP, V1Connection  # noqa - pulls libusb bootstrap first
 
 import usb.core  # noqa: E402 - must come after transport (libusb bootstrap)
 
@@ -25,6 +25,71 @@ class V1Controller(mk_ctrl.GalvoController):
     @property
     def source(self):
         return "fiber"
+
+    def connect_if_needed(self):
+        """Same connect loop as balormk's GalvoController, but the
+        transport is V1Connection (PID 9999, auto firmware upload from
+        the loader PID 9990) instead of the stock USBConnection (which
+        searches for the V2 board, PID 9899)."""
+        if self._disable_connect:
+            # After many failures automatic connects are disabled. We require a manual connection.
+            self.abort_connect()
+            self.connection = None
+            raise ConnectionRefusedError(
+                "LMC was unreachable. Explicit connect required."
+            )
+        if self.connection is None:
+            if self.service.setting(bool, "mock", False) or self.force_mock:
+                self.connection = mk_ctrl.MockConnection(
+                    self.usb_log, device=self.service
+                )
+                name = self.service.safe_label
+                self.connection.send = self.service.channel(f"{name}/send")
+                self.connection.recv = self.service.channel(f"{name}/recv")
+            else:
+                self.connection = V1Connection(self.usb_log)
+        self._is_opening = True
+        self._abort_open = False
+        count = 0
+        while not self.connection.is_open(self._machine_index):
+            try:
+                if self.connection.open(self._machine_index) < 0:
+                    raise ConnectionError
+                self.init_laser()
+            except (ConnectionError, ConnectionRefusedError):
+                if count == 0:
+                    self.service("clone_init\n")
+                time.sleep(0.3)
+                count += 1
+                if self.is_shutdown or self._abort_open:
+                    self._is_opening = False
+                    self._abort_open = False
+                    return
+                if self.connection.is_open(self._machine_index):
+                    self.connection.close(self._machine_index)
+                if count >= 10:
+                    # We have failed too many times.
+                    self._is_opening = False
+                    self.set_disable_connect(True)
+                    self.usb_log("Could not connect to the LMC controller.")
+                    self.usb_log("Automatic connections disabled.")
+                    from platform import system
+
+                    osname = system()
+                    if osname == "Windows":
+                        self.usb_log(
+                            "Did you install the libusb driver via Zadig (https://zadig.akeo.ie/)?"
+                        )
+                        self.usb_log(
+                            "Consult the wiki: https://github.com/meerk40t/meerk40t/wiki/Install%3A-Windows"
+                        )
+                    raise ConnectionRefusedError(
+                        "Could not connect to the LMC controller."
+                    )
+                time.sleep(0.3)
+                continue
+        self._is_opening = False
+        self._abort_open = False
 
     def wait_finished(self):
         """Bounded: 20s max (balormk's loops forever)."""
