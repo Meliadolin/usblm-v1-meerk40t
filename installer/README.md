@@ -28,11 +28,11 @@ level.
 
 ## How it works
 
-MeerK40t's stock balormk plugin speaks the JCZ "V2" wire protocol
-(PID 9899, EP 0x02/0x88, 8-byte responses). The V1 board speaks the
-same protocol family but V1 wire layout (PID 9999, EP 0x01/0x81,
+MeerK40t's stock balormk plugin talks to the later JCZ boards ("V2" wire
+protocol: PID 9899, EP 0x02/0x88, 8-byte responses). The V1 speaks the
+same protocol family in a different layout (PID 9999, EP 0x01/0x81,
 10-byte responses). This package ships its own device profile
-(`app/usblm_v1/`) that speaks the V1 layout directly - the board shows
+(`app/usblm_v1/`) that talks the V1 layout directly - the board shows
 up in the GUI as its own device (USBLM-V1), and stock balormk devices
 are untouched. Everything else is normal MeerK40t.
 

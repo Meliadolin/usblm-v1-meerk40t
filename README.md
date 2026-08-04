@@ -55,6 +55,23 @@ folder:
 Full end-user instructions: `installer/STEPS.md`. The pre-configured laser
 power is **30%**.
 
+## Install into an existing MeerK40t
+
+If MeerK40t is already installed from pip, the profile is just a plugin:
+
+```
+pip install .        # from this repo
+```
+
+It registers through MeerK40t's `meerk40t.extension` entry point - the
+board appears in the device dialog as **USBLM-V1**, next to the stock
+balormk devices, and nothing else is needed (the firmware upload happens
+automatically on connect).
+
+One caveat: the official MeerK40t Windows installer cannot load plugins,
+so this only works with a pip-installed MeerK40t. For that installer, use
+the package above - its `MeerK40T-V1.exe` has the profile built in.
+
 ## For developers
 
 ```bash
