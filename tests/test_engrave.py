@@ -28,20 +28,21 @@ try:
 
     time.sleep(0.5)
 
-    print("\n--- 2. ENGRAVE: square outline (LASER ON, 1 pass) ---")
+    print("\n--- 2. ENGRAVE: square outline (LASER ON, 1 pass, SLOW) ---")
     ctrl.mark([
         (0x6000, 0x6000),
         (0xA000, 0x6000),
         (0xA000, 0xA000),
         (0x6000, 0xA000),
         (0x6000, 0x6000),
-    ])
+    ], mark_speed=0x0010, power=0x0FFF)
     print("  outline engrave DONE")
 
     time.sleep(0.5)
 
-    print("\n--- 3. ENGRAVE: filled square (LASER ON, hatch lines) ---")
-    ctrl.fill(0x6000, 0x6000, 0xA000, 0xA000, step=0x200, stop=True)
+    print("\n--- 3. ENGRAVE: filled square (LASER ON, hatch lines, SLOW) ---")
+    ctrl.fill(0x6000, 0x6000, 0xA000, 0xA000,
+              step=0x200, mark_speed=0x0040, power=0x0FFF, stop=True)
     print("  fill engrave DONE")
 
     print("\nALL DONE - check the result!")
