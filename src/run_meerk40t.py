@@ -52,10 +52,25 @@ def main():
     log("=== MeerK40t V1 launch %s ===" % time.strftime("%Y-%m-%d %H:%M:%S"))
     try:
         import libusb_bootstrap  # noqa: F401
-        import v1_meerk40t
-        log("V1 shim loaded")
+        import usblm_v1  # noqa: F401 - applies the bundled upstream bugfix patches
+        # Frozen (PyInstaller) builds skip meerk40t's external_plugins entry
+        # points, so the V1 provider is injected into the internal plugin
+        # list before meerk40t.main imports it (function-level import in
+        # _exe()). Source installs register through the pip entry point
+        # instead; a duplicate registration is harmless.
+        import meerk40t.internal_plugins as _ip
+        _orig_internal_plugins = _ip.plugin
+
+        def _plugin_with_usblmv1(kernel, lifecycle):
+            if lifecycle == "plugins":
+                from usblm_v1.plugin import plugin as usblmv1_plugin
+                kernel.add_plugin(usblmv1_plugin)
+            return _orig_internal_plugins(kernel, lifecycle)
+
+        _ip.plugin = _plugin_with_usblmv1
+        log("USBLM-V1 profile registered")
     except Exception as e:
-        log(f"SHIM LOAD FAILED: {e}")
+        log(f"V1 PROFILE LOAD FAILED: {e}")
         traceback.print_exc()
         return 1
     try:

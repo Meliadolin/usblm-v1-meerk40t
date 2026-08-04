@@ -11,7 +11,7 @@ import re
 import subprocess
 import time
 
-import libusb_bootstrap  # noqa: F401 - MUST be before usb.core
+from usblm_v1 import bootstrap  # noqa: F401 - MUST be before usb.core
 
 import usb.core
 import usb.util
