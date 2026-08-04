@@ -3,6 +3,9 @@
 
 Copy of src/libusb_bootstrap.py kept inside the package so the profile
 also works from a plain pip install (where src/ is not on sys.path).
+This copy lives one level deeper than the DLL (package dir vs. its
+parent: src/usblm_v1/ vs src/, app/usblm_v1/ vs app/), so it checks
+the package's parent directory as well.
 
 Why this is needed (fresh PC):
 - pyusb's libusb1 backend locates the DLL via ctypes.util.find_library(),
@@ -27,6 +30,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 _candidates = [
     os.path.join(HERE, "libusb-1.0.dll"),                 # next to this file
+    os.path.join(os.path.dirname(HERE),                   # package parent:
+                 "libusb-1.0.dll"),                       # src/ or app/
     os.path.join(os.path.dirname(sys.executable),         # next to python.exe
                  "libusb-1.0.dll"),
     os.path.join(os.path.dirname(sys.executable), "DLLs",
