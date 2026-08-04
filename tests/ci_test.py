@@ -3,7 +3,8 @@
 
 Asserts: every src module imports, version strings are present, the
 firmware upload sequence parses and starts/ends the way the board expects,
-the list-record chunk layout is byte-exact, and the offline galvoplotter
+the list-record chunk layout is byte-exact, the USBLM-V1 device
+provider registers with a bare kernel, and the offline galvoplotter
 mock flow still passes. Exits nonzero on the first failing group.
 """
 import os
@@ -33,10 +34,10 @@ def main():
     import libusb_bootstrap  # noqa: F401
     import v1_controller
     import v1_galvoplotter
-    import v1_meerk40t
+    import usblm_v1
     import upload_firmware
     check("all src modules import", True)
-    for mod in (v1_controller, v1_galvoplotter, v1_meerk40t, upload_firmware):
+    for mod in (v1_controller, v1_galvoplotter, usblm_v1, upload_firmware):
         check(f"{mod.__name__} has __version__", getattr(mod, "__version__", None) == "1.1.0")
 
     # 2. firmware upload sequence parses + is the known-good shape
@@ -67,11 +68,18 @@ def main():
     check("256 records fit one chunk", len(chunk) == 3072)
 
     # 4. offline galvoplotter flow (fake board transport)
-    r = subprocess.run(
+    r_mock = subprocess.run(
         [sys.executable, os.path.join(HERE, "test_v1_galvoplotter_mock.py")],
         capture_output=True, text=True)
-    check("galvoplotter offline mock passes", r.returncode == 0,
-          (r.stderr or r.stdout)[:200])
+    check("galvoplotter offline mock passes", r_mock.returncode == 0,
+          (r_mock.stderr or r_mock.stdout)[:200])
+
+    # 5. device-provider registration (needs meerk40t installed)
+    r_reg = subprocess.run(
+        [sys.executable, os.path.join(HERE, "test_registration.py")],
+        capture_output=True, text=True)
+    check("device-provider registration passes", r_reg.returncode == 0,
+          (r_reg.stderr or r_reg.stdout)[:200])
 
     print()
     if FAILURES:

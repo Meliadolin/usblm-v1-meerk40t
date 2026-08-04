@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "src"))
 import libusb_bootstrap  # noqa: F401
 
-from v1_meerk40t import V1MKController
+from usblm_v1.controller import V1Controller
 from test_v1_meerk40t_real import FakeService
 
 LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -30,7 +30,7 @@ def main():
     log(f"CAPABILITY TEST v2 {time.strftime('%Y-%m-%d %H:%M:%S')}")
     log("=" * 60)
 
-    ctrl = V1MKController(FakeService())
+    ctrl = V1Controller(FakeService())
     try:
         ctrl.connect_if_needed()
         log("connect+init OK")

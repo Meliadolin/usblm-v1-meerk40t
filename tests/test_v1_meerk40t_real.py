@@ -8,8 +8,7 @@ import threading
 import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "src"))
-import v1_meerk40t
-from v1_meerk40t import V1MKController
+from usblm_v1.controller import V1Controller
 
 
 def watchdog():
@@ -72,7 +71,7 @@ class FakeService:
 
 def main():
     svc = FakeService()
-    ctrl = V1MKController(svc)
+    ctrl = V1Controller(svc)
     t0 = time.time()
     try:
         print("=== connect + init ===")
@@ -121,7 +120,7 @@ def main():
             time.sleep(0.02)
         st = ctrl.status()
         print(f"wait_finished done, state: {hex(st) if st is not None else None}")
-        print("JOB DONE - square marked via MeerK40t balormk controller")
+        print("JOB DONE - square marked via the USBLM-V1 profile")
         ctrl.disconnect()
     except Exception as e:
         import traceback

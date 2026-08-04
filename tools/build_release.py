@@ -81,9 +81,13 @@ PACKAGE_CONFIG_FILES = [
 ]
 
 PACKAGE_APP_FILES = [
-    "src/run_meerk40t.py", "src/v1_meerk40t.py", "src/v1_galvoplotter.py",
+    "src/run_meerk40t.py", "src/v1_galvoplotter.py",
     "src/upload_firmware.py", "src/libusb_bootstrap.py",
     "src/libusb-1.0.dll",
+]
+
+PACKAGE_APP_DIRS = [
+    "src/usblm_v1",
 ]
 
 PACKAGE_TEST_FILES = [
@@ -216,6 +220,11 @@ def assemble():
         shutil.copy2(os.path.join(ROOT, rel), os.path.join(SETUP, "config"))
     for rel in PACKAGE_APP_FILES:
         shutil.copy2(os.path.join(ROOT, rel), os.path.join(SETUP, "app"))
+    for rel in PACKAGE_APP_DIRS:
+        src = os.path.join(ROOT, rel)
+        if not os.path.isdir(src):
+            fail(f"missing source dir: {rel}")
+        shutil.copytree(src, os.path.join(SETUP, "app", os.path.basename(rel)))
     for rel in PACKAGE_TEST_FILES:
         shutil.copy2(os.path.join(ROOT, rel), os.path.join(SETUP, "tests"))
     for rel in PACKAGE_DATA_FILES:

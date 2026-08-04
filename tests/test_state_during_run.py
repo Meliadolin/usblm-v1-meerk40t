@@ -11,8 +11,7 @@ import threading
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "src"))
-import v1_meerk40t
-from v1_meerk40t import V1MKController
+from usblm_v1.controller import V1Controller
 from test_v1_meerk40t_real import FakeService
 
 STATES = []
@@ -29,7 +28,7 @@ def poller(ctrl):
 
 def main():
     global STOP
-    ctrl = V1MKController(FakeService())
+    ctrl = V1Controller(FakeService())
     ctrl.connect_if_needed()
     ctrl.program_mode()
     ctrl.list_jump_speed(0x0D1B)

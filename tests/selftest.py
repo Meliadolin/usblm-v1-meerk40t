@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env python3
 """Self-test for the MeerK40t V1 setup on any PC.
-Verifies: shim loads, board found, firmware upload works, board responds,
+Verifies: profile loads, board found, firmware upload works, board responds,
 galvo can move (no laser). Run BEFORE using the GUI."""
 import os
 import struct
@@ -49,8 +49,8 @@ def main():
 
     # 1. shim loads
     try:
-        import v1_meerk40t
-        check("shim import", True)
+        import usblm_v1  # noqa: F401
+        check("profile import", True)
     except Exception as e:
         check("shim import", False, str(e))
         return 1
@@ -69,8 +69,8 @@ def main():
             _log("board not visible to libusb - scanning Windows device tree:")
             print("  (libusb sees nothing - checking Windows device tree...)")
             try:
-                import v1_meerk40t
-                v1_meerk40t._scan_windows_usb()
+                from usblm_v1.transport import scan_windows_usb
+                scan_windows_usb()
             except Exception as e:
                 _log(f"  windows scan failed: {e}")
             check("board found", False, "- see v1_shim_trace.log for the Windows-side scan")
@@ -80,7 +80,7 @@ def main():
         return 1
 
     # 3. full connect + init (uploads firmware if needed, no laser)
-    from v1_meerk40t import V1MKController
+    from usblm_v1.controller import V1Controller
 
     try:
         from test_v1_meerk40t_real import FakeService  # reuse the fake service
@@ -135,7 +135,7 @@ def main():
 
     ctrl = None
     try:
-        ctrl = V1MKController(FakeService())
+        ctrl = V1Controller(FakeService())
         ctrl.connect_if_needed()
         check("connect + init (firmware upload if needed)", True)
         st = ctrl.status()

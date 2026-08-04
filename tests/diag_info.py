@@ -144,12 +144,12 @@ def main():
         log(f"  {loc}: {'present' if os.path.exists(loc) else 'MISSING'}")
 
     log("")
-    log("--- shim imports ---")
+    log("--- profile imports ---")
     try:
-        import v1_meerk40t
-        log("  v1_meerk40t: OK")
+        import usblm_v1
+        log("  usblm_v1: OK")
     except Exception as e:
-        log(f"  v1_meerk40t: FAIL {e}")
+        log(f"  usblm_v1: FAIL {e}")
     try:
         import v1_galvoplotter
         log("  v1_galvoplotter: OK")
