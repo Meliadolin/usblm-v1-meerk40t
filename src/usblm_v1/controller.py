@@ -55,6 +55,7 @@ class V1Controller(mk_ctrl.GalvoController):
             try:
                 if self.connection.open(self._machine_index) < 0:
                     raise ConnectionError
+                self._heal_leftover()
                 self.init_laser()
             except (ConnectionError, ConnectionRefusedError):
                 if count == 0:
@@ -90,6 +91,25 @@ class V1Controller(mk_ctrl.GalvoController):
                 continue
         self._is_opening = False
         self._abort_open = False
+
+    def _heal_leftover(self):
+        """A board found with a leftover list (killed app mid-job) is
+        parked at 0x0226/0x0236 (run-done, list open) or running
+        (0x0224/0x0234) or paused (bit 0x08). 0x0012 ResetList sent
+        while the list is still open WEDGES the firmware (EP servicing
+        stops). The verified ladder: 0x001F StopExecute ALONE snaps
+        every one of those states to 0x0220; only then is ResetList
+        safe. Skipped for a clean idle board."""
+        st = self.status()
+        if st is None or st in (0x0220, 0x0260):
+            return
+        trace(f"_heal_leftover: state {hex(st)} - StopExecute")
+        self._command(0x001F)          # StopExecute - snaps to 0x0220
+        self.reset_list()              # 0x0012 - safe after the stop
+        self._command(0x0021, 0)
+        self._command(0x001D, 2000, 20, 1)
+        self._command(0x0033, 0)
+        time.sleep(0.3)
 
     def wait_finished(self):
         """Bounded: 20s max (balormk's loops forever)."""

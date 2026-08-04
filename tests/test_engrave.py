@@ -35,7 +35,7 @@ try:
         (0xA000, 0xA000),
         (0x6000, 0xA000),
         (0x6000, 0x6000),
-    ], pad_to=0)
+    ])
     print("  outline engrave DONE")
 
     time.sleep(0.5)

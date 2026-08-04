@@ -79,6 +79,33 @@ class V1Controller:
             dev.set_interface_altsetting(0, 0)
             usb.util.claim_interface(dev, 0)
         self._dev = dev
+        st = self._probe_ok(dev)
+        if st is None:
+            # A previous crashed run can leave the firmware wedged (EP
+            # 0x01 stops being serviced while a list is still open).
+            # CPUCS-reboot in place (PID stays 9999) and re-attach.
+            print("command channel dead - CPUCS reboot...")
+            nd = self._cpu_reset_and_refind()
+            if nd is None:
+                raise RuntimeError("V1 board unrecoverable (CPUCS reboot failed)")
+            dev = nd
+        elif st in (0x0226, 0x0236):
+            # Run-done with the list still open (leftover of a crashed
+            # run): 0x0226 = vector leftover, 0x0236 = raster leftover.
+            # The verified stop ladder clears both to 0x0220 - the key
+            # is 0x001F ALONE first (it snaps either state to 0x220);
+            # 0x0012 ResetList is only safe AFTER that (sending it
+            # while the list is still open wedges the firmware).
+            print(f"board at {hex(st)} (stale open list) - stop ladder...")
+            self._cmd(0x001F)                  # StopExecute -> 0x220
+            self._cmd(0x0012)                  # ResetList (safe after 0x001F)
+            self._cmd(0x0021, 0)               # WritePort(0)
+            self._cmd(0x001D, 2000, 20, 1)     # SetStandby
+            self._cmd(0x0033, 0)               # Fiber_SetMo closed
+            st = self._probe_ok(dev)
+            if st is not None and st != 0x0220:
+                print(f"ladder left board at {hex(st)} (continuing anyway)")
+        self._dev = dev
         self._connected = True
         print(f"Connected V1 board (bus={dev.bus}, addr={dev.address})")
 
@@ -89,6 +116,62 @@ class V1Controller:
             except Exception:
                 pass
             self._connected = False
+
+    def _probe_ok(self, dev, tries=3):
+        """Drain stale responses, then require a genuine poll response
+        (w0==0x0001). Returns the board state word (w[3]), or None if the
+        command channel is dead. Any genuine poll means the firmware is
+        servicing EP 0x01; non-idle states (e.g. 0x0226) are recoverable
+        in connect() and must not be mistaken for a dead channel."""
+        for _ in range(10):
+            try:
+                dev.read(RESP_EP, 64, timeout=10)
+            except usb.core.USBTimeoutError:
+                break
+        for _ in range(tries):
+            try:
+                dev.write(CMD_EP, struct.pack('<H', 0x0001), timeout=300)
+                r = bytes(dev.read(RESP_EP, 64, timeout=300))
+                if len(r) >= 10:
+                    w = struct.unpack('<5H', r[:10])
+                    if w[0] == 0x0001:
+                        return w[3]
+            except usb.core.USBError:
+                pass
+            time.sleep(0.2)
+        return None
+
+    def _cpu_reset_and_refind(self):
+        """CPUCS reboot: the firmware restarts and the device
+        re-enumerates (old handle goes stale). Returns the new device
+        with a working command channel, or None."""
+        dev = self._dev
+        try:
+            dev.ctrl_transfer(0x40, 0xA0, 0xE600, 0, b'\x01', timeout=500)
+            time.sleep(0.1)
+        except usb.core.USBError:
+            pass
+        try:
+            dev.ctrl_transfer(0x40, 0xA0, 0xE600, 0, b'\x00', timeout=500)
+        except usb.core.USBError:
+            pass  # device re-enumerates mid-reboot - expected
+        # Re-enumeration + WinUSB driver rebind can take several seconds
+        # (observed up to ~15s). Retry the whole attach sequence (find ->
+        # config -> claim -> probe) until it works or 20s pass.
+        t0 = time.time()
+        while time.time() - t0 < 20.0:
+            try:
+                nd = usb.core.find(idVendor=VID, idProduct=PID)
+                if nd is not None:
+                    nd.set_configuration()
+                    nd.set_interface_altsetting(0, 0)
+                    usb.util.claim_interface(nd, 0)
+                    if self._probe_ok(nd) is not None:
+                        return nd
+            except usb.core.USBError:
+                pass
+            time.sleep(0.25)
+        return None
 
     def _flush(self):
         for _ in range(5):
@@ -255,7 +338,8 @@ class V1Controller:
 
         t0 = time.time()
         i = 0
-        while time.time() - t0 < duration:
+        deadline = time.time() + duration + 30.0  # generous idle bound
+        while time.time() < deadline:
             st = self._poll_100()
             i += 1
             if st is not None and st[1] == 0x0220:
@@ -263,7 +347,17 @@ class V1Controller:
                 break
             time.sleep(0.005)
         else:
-            print(f"  TIMEOUT after {time.time()-t0:.0f}s ({i} polls)")
+            # The job MUST finish before the caller proceeds (releasing
+            # the interface mid-run leaves the list open and the next
+            # command wedges the firmware). Keep waiting - real raster
+            # jobs can legitimately run for minutes.
+            while True:
+                st = self._poll_100()
+                i += 1
+                if st is not None and st[1] == 0x0220:
+                    print(f"  IDLE after {time.time()-t0:.2f}s ({i} polls)")
+                    break
+                time.sleep(0.01)
 
         # return galvo to center (like EZCAD)
         self._try_cmd(0x000D, 0x8000, 0x8000)
@@ -445,6 +539,45 @@ class V1Controller:
             time.sleep(0.005)
         print(f"  run loop: {i} cycles, {time.time()-t_loop:.2f}s")
 
+        # end the stream cleanly: the board loops the list while the
+        # host streams. Once streaming stops it completes the current
+        # pass and stops with the list still open (state 0x236) - and
+        # from that state the firmware stops servicing EP 0x01 on the
+        # next command (observed wedge). Close the list the same way
+        # the profile does: an end-of-list (0x8002) terminator chunk,
+        # control-mode reset, galvo back to center, then wait for idle.
+        self._write_chunk(self._seg(0x8002, 0, 0, 0, 0) * (CHUNK_SIZE // 12),
+                          "terminator")
+        time.sleep(0.2)
+        self._try_cmd(0x0016, 0x0001)          # SetControlMode(1)
+        self._try_cmd(0x000D, 0x8000, 0x8000)  # galvo to center
+        t0 = time.time()
+        while time.time() - t0 < 5.0:
+            st = self._poll_100()
+            if st is not None and st[1] in (0x0220, 0x0260):
+                print(f"  stream closed, idle after {time.time()-t0:.2f}s")
+                break
+            time.sleep(0.01)
+        else:
+            print(f"  WARNING: stream close timeout (state "
+                  f"{hex(st[1]) if st else 'None'})")
+
+        # The board is idle but the stream's list is still OPEN - the
+        # next job's program_mode sends 0x0012 ResetList, and a ResetList
+        # against an open list wedges the firmware (EP 0x01 stops being
+        # serviced; observed repeatedly). 0x001F + 0x0012 do NOT clear
+        # this reliably (they left the board at 0x8000 and the next job
+        # still wedged). The deterministic recovery is the CPUCS reboot
+        # + re-attach + re-init - the same recovery the profile uses as
+        # its last resort. Costs ~2-3s per streamed job.
+        self._flush()
+        nd = self._cpu_reset_and_refind()
+        if nd is not None:
+            self._dev = nd
+            self.init()
+        else:
+            print("  WARNING: stream close - CPUCS recovery failed")
+
         # optional end-of-session stop - tolerant, only when stop=True
         if stop:
             for code, args in [(0x0021, (0,)), (0x0034, ()), (0x0012, ()),
@@ -503,6 +636,7 @@ class V1Controller:
         self._cmd(0x0007, 1)
         self._cmd(0x0015)
         self._cmd(0x0004)
+        self._cmd(0x0022, 0x7FF)  # WriteAnalogPort1 - beam gate (DAC), same as the profile
         self._cmd(0x0016, 0)
         self._cmd(0x001B, 1)
         self._cmd(0x0017, 1)

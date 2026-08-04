@@ -59,6 +59,10 @@ traceback (the exe has no console). Common causes:
 
 ### Selftest passes but the board doesn't mark
 - Laser power 0 / MO closed - check Device settings.
+- The beam gate: init must send `0x0022 WriteAnalogPort1(0x7FF)` - the
+  analog DAC the fiber source's modulation reads. Without it the galvo
+  moves and the list executes but the beam never fires. The profile and
+  the standalone engine both send it (old standalone builds did not).
 - Check the E-stop is released (press = STOP; the factory wiring can be
   backwards - verify on every machine).
 - The beam may be invisible (IR laser) - the job could be running
