@@ -41,7 +41,10 @@ PYTHON_EMBED = {
 GET_PIP = {
     "file": "get-pip.py",
     "url": "https://bootstrap.pypa.io/get-pip.py",
-    "sha256": "25B5C39ADE96BAB5EABE6404CE83CAB6DA2DEB5FE3C07D9881F43803EDB6F9C8",
+    # NOTE: get-pip.py is a rolling script - bootstrap.pypa.io updates it
+    # on every pip release. If the build fails on a hash mismatch, refresh
+    # this to the current sha256 of https://bootstrap.pypa.io/get-pip.py.
+    "sha256": "FB24E693BAB954209A063D90953621412CCAD4A500905A726286E038F508DDF6",
 }
 PYINSTALLER = "6.21.0"
 
