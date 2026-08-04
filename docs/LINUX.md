@@ -26,7 +26,7 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="9588", MODE="0666"
 
 Then reload: `sudo udevadm control --reload && sudo udevadm trigger`.
 The board enumerates as vendor 0x9588 with product 0x9999 (normal) or
-0x9990 (loader, needs the firmware upload first - the shim does it
+0x9990 (loader, needs the firmware upload first - the profile does it
 automatically).
 
 ## macOS
@@ -41,5 +41,5 @@ If the firmware upload fails on first connect, replug the board and retry.
 
 ## Same protocol, same limits
 
-The wire protocol, the buffered job model and the shim behavior are
+The wire protocol, the buffered job model and the profile behavior are
 identical across platforms - see `docs/PROTOCOL.md`.

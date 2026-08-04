@@ -14,32 +14,34 @@ level.
 | File / folder | Purpose |
 |---|---|
 | `SetupPanel.exe` | The control center: install, driver, self-test, launch (this is what you run first) |
-| `MeerK40t-V1.exe` | The marking software with the V1 shim compiled in |
+| `MeerK40t-V1.exe` | The marking software with the USBLM-V1 device profile compiled in |
 | `README.md` / `STEPS.md` | This file / the step-by-step user guide |
-| `app\` | The shim + supporting modules (`v1_meerk40t.py` patches MeerK40t's balormk plugin; `v1_galvoplotter.py`, `upload_firmware.py`, `libusb_bootstrap.py`, `libusb-1.0.dll`) - run in place from this folder |
+| `app\` | The USBLM-V1 device profile (`usblm_v1\` - a native MeerK40t plugin) + supporting modules (`v1_galvoplotter.py`, `upload_firmware.py`, `libusb_bootstrap.py`, `libusb-1.0.dll`) - run in place from this folder |
 | `scripts\` | `install.bat` (install software), `bind_winusb.cmd` (WinUSB binding, admin), `run_meerk40t.cmd` (GUI launcher), `selftest.cmd` / `diag.cmd` (verification / diagnostics) |
 | `tools\` | `zadig.exe` - signed WinUSB driver tool (GPLv3, from pbatard/libwdi); pre-configured via `zadig.ini` |
-| `config\` | `MeerK40t.cfg` - pre-configured device: Galvo-Fiber, fiber source, 30% power defaults (deployed to the standard MeerK40t location at install) |
-| `tests\` | `selftest.py` (5-check board/shim verification) + `diag_info.py` (diagnostics) |
+| `config\` | `MeerK40t.cfg` - pre-configured device: USBLM-V1 (fiber), 30% power defaults (deployed to the standard MeerK40t location at install) |
+| `tests\` | `selftest.py` (5-check board/profile verification) + `diag_info.py` (diagnostics) |
 | `data\` | `v1_upload_sequence.dat` - the firmware image for `upload_firmware.py` |
 | `offline\` | What the installer consumes: bundled Python (`python-embed.zip`, `get-pip.py`) + `wheelhouse\` (all pinned packages) |
 | `runtime\` | Bundled Python runtime, extracted at install time |
-| `logs\` | Every log: install, driver bind, self-test, diagnostics, the shim trace and the app trace |
+| `logs\` | Every log: install, driver bind, self-test, diagnostics, the profile trace and the app trace |
 
 ## How it works
 
-MeerK40t's balormk plugin speaks the JCZ "V2" wire protocol
+MeerK40t's stock balormk plugin speaks the JCZ "V2" wire protocol
 (PID 9899, EP 0x02/0x88, 8-byte responses). The V1 board speaks the
 same protocol family but V1 wire layout (PID 9999, EP 0x01/0x81,
-10-byte responses). The shim translates between them - everything else
-is normal MeerK40t.
+10-byte responses). This package ships its own device profile
+(`app/usblm_v1/`) that speaks the V1 layout directly - the board shows
+up in the GUI as its own device (USBLM-V1), and stock balormk devices
+are untouched. Everything else is normal MeerK40t.
 
-The shim also:
+The profile also:
 - Auto-uploads firmware if the board is in loader mode (9990)
 - Drains the board's chunk-ack responses (prevents read desync)
 - Bounded waits + auto-recovery (cannot hang)
 - Self-healing status reads (re-syncs if a stale response slips in)
-- Forces fiber source (safe even if device was created as CO2)
+- Forces fiber source (the V1 is a fiber driver board)
 
 ## Troubleshooting
 
@@ -54,10 +56,11 @@ The shim also:
 
 ## Known limitations
 
-- The official MeerK40t installer cannot host the shim - use this package
-  (its `MeerK40t-V1.exe` already includes the shim)
+- The official MeerK40t installer does not include the V1 profile - use
+  this package (its `MeerK40t-V1.exe` already registers it)
 - Raster engraving: supported (EZCAD-style pixel records)
 - Lens correction: upload format not yet decoded - geometry slightly
   distorted at field edges only
 - Linux/Mac: `pip install meerk40t wxPython pyusb pillow ezdxf libusb`,
-  copy the shim files, run - no driver step needed
+  then install the plugin (`pip install .` from this repo, or copy
+  `app/usblm_v1/`), run - no driver step needed

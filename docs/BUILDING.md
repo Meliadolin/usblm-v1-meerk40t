@@ -47,7 +47,7 @@ users extract it and run `SetupPanel.exe` (see `installer/STEPS.md`).
 setup/  (= the release zip)
 ├── SetupPanel.exe / MeerK40t-V1.exe     the apps (run SetupPanel.exe first)
 ├── README.md / STEPS.md                 end-user docs
-├── app/                                 shims + USB stack (runs in place)
+├── app/                                 USBLM-V1 profile + USB stack (runs in place)
 ├── scripts/                             install.bat, bind_winusb.cmd,
 │                                        run_meerk40t.cmd, selftest.cmd,
 │                                        diag.cmd
@@ -77,17 +77,21 @@ together.
 
 ## Upgrading to a newer MeerK40t
 
-The shim patches MeerK40t's internal balormk fork, so a new MeerK40t can
-silently change assumptions. The safe procedure:
+The profile subclasses balormk's driver and controller and reuses its
+GUI panels, so a new MeerK40t can silently change assumptions. The safe
+procedure:
 
 1. bump `meerk40t` in `tools/requirements-runtime.txt`
 2. rebuild the wheelhouse: `python tools/build_release.py --refresh`
 3. install the new MeerK40t into a scratch venv, run
-   `tests/test_v1_galvoplotter_mock.py` (offline, catches API drift)
+   `tests/test_v1_galvoplotter_mock.py` and `tests/test_registration.py`
+   (both offline: the first catches API drift, the second verifies the
+   provider still registers)
 4. with a board attached: `tests/selftest.py` (5/5), then
    `tests/test_capabilities.py` - the full list of every command/record
-   the shim can emit
-5. diff `v1_meerk40t.py` against the new balormk source in the venv
+   the profile can emit
+5. diff `src/usblm_v1/controller.py` and `src/usblm_v1/driver.py`
+   against the new balormk source in the venv
    (`site-packages/meerk40t/balormk/`): look for new commands the driver
    might now emit (new settings, new record types)
 6. only then tag a release

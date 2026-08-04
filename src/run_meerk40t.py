@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/env python3
-"""MeerK40t launcher with the V1 shim pre-loaded.
+"""MeerK40t launcher with the USBLM-V1 profile registered.
 Runs without a console (use pythonw.exe). Everything is logged to
 logs\\meerk_trace.log in the package root - including failures."""
 import faulthandler

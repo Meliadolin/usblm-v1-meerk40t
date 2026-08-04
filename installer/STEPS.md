@@ -36,7 +36,8 @@ Everything the panel does is also available as scripts in `scripts\`:
 
 ## Notes
 
-- **MeerK40t-V1.exe** - the marking software with the V1 shim compiled in.
+- **MeerK40t-V1.exe** - the marking software with the USBLM-V1 device
+  profile compiled in.
   It is also launched by the panel/shortcut; it runs standalone.
 - Everything logs to the `logs\` folder next to the exe.
 

@@ -10,7 +10,7 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-# dev layout: shims live in src/ ; shipped package: they live in app/
+# dev layout: the profile + USB stack live in src/ ; shipped: in app/
 sys.path.insert(0, os.path.join(ROOT, "app"))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 

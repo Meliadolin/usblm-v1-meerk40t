@@ -7,7 +7,7 @@ What this does, in order:
      only on the first run; later runs work offline.
   2. Fill the wheelhouse (pip download, pinned versions) if missing.
   3. Build the two onefile executables with PyInstaller from the specs.
-  4. Assemble the complete setup/ package: installer scripts, shims,
+  4. Assemble the complete setup/ package: installer scripts, the profile,
      firmware, docs.
 
 Run from the repository root:
@@ -57,7 +57,7 @@ ZADIG = {
 
 # Package layout (what ends up in setup/, = the release zip):
 #   root:     the apps (SetupPanel.exe, MeerK40t-V1.exe) + the two docs
-#   app/:     the shim + USB stack (runs in place from the package)
+#   app/:     the USBLM-V1 profile + USB stack (runs in place from the package)
 #   scripts/: the install/launch/driver/verification scripts
 #   tools/:   zadig.exe (signed WinUSB driver tool)
 #   config/:  MeerK40t.cfg (deployed to the standard MeerK40t location)

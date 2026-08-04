@@ -56,7 +56,7 @@ class FakeConnection:
             state = 0x0224
         else:
             state = 0x0220
-        return struct.pack('<4H', 0x0001, 0x0001, 0, state)  # 8B (shim output)
+        return struct.pack('<4H', 0x0001, 0x0001, 0, state)  # 8B (profile output)
 
     def dump(self):
         from galvo.consts import single_command_lookup

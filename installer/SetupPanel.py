@@ -39,7 +39,7 @@ CFG_PATH = os.path.join(CFG_DIR, "MeerK40t.cfg")
 
 # Package subfolders are resolved against HERE at call time (HERE points at
 # the package root when frozen, at installer/ when run from source):
-#   app/     = the shim + USB stack, run in place
+#   app/     = the USBLM-V1 profile + USB stack, run in place
 #   offline/ = bundled Python + wheels consumed by the install
 #   tests/   = self-test / diagnostics
 #   tools/   = zadig.exe (driver tool)

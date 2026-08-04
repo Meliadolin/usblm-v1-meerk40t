@@ -12,7 +12,7 @@ __version__ = "1.1.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-# dev layout: shims live in src/ ; shipped package: they live in app/
+# dev layout: the profile + USB stack live in src/ ; shipped: in app/
 sys.path.insert(0, os.path.join(ROOT, "app"))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
@@ -47,12 +47,12 @@ def check(name, ok, detail=""):
 def main():
     print("=== USBLM-V1 + MeerK40t self-test ===\n")
 
-    # 1. shim loads
+    # 1. profile loads
     try:
         import usblm_v1  # noqa: F401
         check("profile import", True)
     except Exception as e:
-        check("shim import", False, str(e))
+        check("profile import", False, str(e))
         return 1
 
     # 2. libusb + board presence

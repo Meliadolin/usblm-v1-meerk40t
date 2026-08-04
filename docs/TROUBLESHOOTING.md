@@ -43,7 +43,7 @@ Three possible causes, in order of likelihood:
 
 ### Board shows "Unknown Device #1"
 **This is normal** - it's the board in loader mode (PID 9990), which is
-what it does until the firmware upload runs. The shim auto-uploads on
+what it does until the firmware upload runs. The profile auto-uploads on
 connect; if it never gets to upload, run `upload_firmware.py` by hand or
 replug the board and run the selftest again.
 
@@ -55,7 +55,7 @@ traceback (the exe has no console). Common causes:
   the panel code crashes with `wxAssertionError: page must be a child of
   the notebook` on 4.3.x. The installer pins 4.2.2 - if you installed
   packages yourself, check the version.
-- the shim failed to load -> `SHIM LOAD FAILED` is logged.
+- the profile failed to load -> `V1 PROFILE LOAD FAILED` is logged.
 
 ### Selftest passes but the board doesn't mark
 - Laser power 0 / MO closed - check Device settings.
@@ -67,9 +67,9 @@ traceback (the exe has no console). Common causes:
 
 ### Only part of a raster/text job gets engraved
 - The board has TWO legitimate running states: `0x0224` (vector) and
-  `0x0234` (raster with power records). Early shim versions mistook
+  `0x0234` (raster with power records). Early profile versions mistook
   0x0234 for a wedge and stopped the job after 2 seconds - the current
-  shim waits for both states and never interrupts a running job.
+  profile waits for both states and never interrupts a running job.
 - Big jobs stream automatically: when the board's list buffer fills
   (state 0x0200, not-ready), the queued batch is executed, the list
   reset, and sending continues. A visible pause between batches is
@@ -79,19 +79,19 @@ traceback (the exe has no console). Common causes:
 - If a LiveLightJob (outline) is still running in the spooler, new jobs
   queue behind it - stop the light job first.
 - After a crashed/aborted session, the board may be in a leftover
-  state; the shim self-heals on the next connect, but replugging is the
+  state; the profile self-heals on the next connect, but replugging is the
   quickest clean start.
 
 ### Board shows up as loader mode (9990) after every session
-- Fixed in the current shim: balormk's default disconnect does a USB
-  bus reset, which drops the V1 board into loader mode. The V1 shim
+- Fixed in the current profile: balormk's default disconnect does a USB
+  bus reset, which drops the V1 board into loader mode. The V1 profile
   disables the reset. Old builds and sessions ended by force (kill,
   crash) still leave the board in loader mode until the next connect
   (which auto-uploads) or a replug.
 
 ### Job hangs in MeerK40t
 Close the GUI, check `logs\meerk_trace.log` and `logs\v1_shim_trace.log`.
-The shim has bounded waits and self-healing reads - a hang means a
+The profile has bounded waits and self-healing reads - a hang means a
 USB-level problem (driver binding, cable) rather than a protocol
 deadlock. Replug the board, rerun the selftest.
 

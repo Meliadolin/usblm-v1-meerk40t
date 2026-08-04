@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""HARDWARE test of the MeerK40t V1 shim: drive the balormk controller
+"""HARDWARE test of the USBLM-V1 profile: drive the V1 controller
 directly (program_mode -> goto/mark -> rapid_mode -> wait_finished).
 Requires the board on PID 9999 + WinUSB. Self-terminates after 45s."""
 import os

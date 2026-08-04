@@ -1,5 +1,5 @@
 @echo off
-rem Launch MeerK40t with the V1 shim - NO console, NO admin.
+rem Launch MeerK40t with the USBLM-V1 profile - NO console, NO admin.
 rem The app files run in place from the package's app\ folder.
 rem Output goes to logs\meerk_trace.log.
 cd /d "%~dp0"

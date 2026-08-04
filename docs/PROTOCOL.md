@@ -141,7 +141,7 @@ buffer after a few hundred chunks - the board then stops reporting READY
 (state `0x0200`) until the list is executed. Large jobs must be split
 into chained batches: execute what is queued (the last chunk's 0x8002
 padding ends the mini-list), wait for the run, reset the list, and keep
-sending. This is exactly EZCAD's raster streaming behavior - the shim's
+sending. This is exactly EZCAD's raster streaming behavior - the profile's
 `_list_end` does this automatically when the board signals full.
 
 ## Speed scale
@@ -185,14 +185,14 @@ ctrl_transfer(0x40, 0xA0, 0xE600, 0, b'\x01')  then b'\x00'
 ```
 
 Do **not** use a USB bus reset - it drops the board into loader mode
-(balormk's default disconnect does a bus reset; the V1 shim disables it).
+(balormk's default disconnect does a bus reset; the V1 profile disables it).
 
 ## The end-of-list terminator
 
 Every list must end with an explicit 0x8002 end-of-list record + a
 terminator chunk before ExecuteList. Executing a list without it makes
 the board wait forever (state 0x234) - the light/outline trace mode hit
-this until the shim started ending light passes like normal jobs.
+this until the profile started ending light passes like normal jobs.
 
 ## Raster engraving (decoded 2026-07-31, fw_capture5.pcap)
 

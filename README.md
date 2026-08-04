@@ -1,8 +1,8 @@
 # usblm-v1-meerk40t
 
-A complete working setup for the BJJCZ "USBLM-V1" (VID_9588, PID_9999)
-galvo board on a modern 64-bit Windows PC, using
-[MeerK40t](https://github.com/meerk40t/meerk40t) as the laser software.
+Makes the BJJCZ "USBLM-V1" galvo board (VID_9588 / PID_9999) run as a
+native device in [MeerK40t](https://github.com/meerk40t/meerk40t) on
+64-bit Windows 10/11.
 
 ## What this is
 
@@ -18,9 +18,9 @@ This project removes that dependency. It contains:
 - automatic firmware upload: the board enumerates as a loader (PID 9990)
   and needs its firmware loaded before it becomes the marking device
   (PID 9999),
-- a MeerK40t profile (shim) that teaches MeerK40t's galvo driver (balormk)
-  the V1's wire protocol, so the board shows up as a normal galvo device in
-  the GUI,
+- a native MeerK40t device profile (`src/usblm_v1/`) that speaks the V1
+  wire protocol directly - the board shows up in the GUI as its own
+  device (USBLM-V1), next to the stock balormk devices,
 - a GUI setup panel (`SetupPanel.exe`) that installs everything on a fresh
   PC,
 - hardware tests and a self-test, plus the full protocol documentation.
@@ -30,11 +30,11 @@ driving the board; `docs/REVERSE_ENGINEERING.md` documents how.
 
 ## Status
 
-Verified working end to end on the physical board through the MeerK40t GUI:
+Verified on the physical board through the MeerK40t GUI:
 marking, multi-direction fills, raster engraving, red-light trace and
 live-outline. The board's quirks (chunked job lists, buffered execution,
 paused-state behaviour on StopList, firmware reload after a USB bus reset)
-are handled in the shim and documented in `docs/PROTOCOL.md`.
+are handled in the profile and documented in `docs/PROTOCOL.md`.
 
 ## For users: the package
 
@@ -60,7 +60,7 @@ power is **30%**.
 ```bash
 # From source
 pip install pyusb libusb meerk40t wxPython ezdxf pillow numpy
-python src/run_meerk40t.py                 # GUI with the shim pre-loaded
+python src/run_meerk40t.py                 # GUI with the profile registered
 
 # Hardware self-test (no laser fires)
 python tests/selftest.py                   # expect 5/5 PASS
@@ -79,7 +79,8 @@ ctrl.mark([(0x6000, 0x6000), (0xA000, 0x6000)])   # 0x8000 = field center
 ### Repository layout
 
 ```
-src/             the USB controller + the MeerK40t/galvoplotter shims
+src/             the USB controller, the USBLM-V1 MeerK40t profile,
+                 and the galvoplotter profile
 installer/       everything that becomes the package: SetupPanel source,
                  install/driver/launch scripts, config, end-user docs
 tests/           hardware tests, mock tests, selftest, CI test
@@ -97,7 +98,7 @@ device settings in the standard MeerK40t location:
 setup/
 ├── SetupPanel.exe / MeerK40t-V1.exe    the apps (run SetupPanel.exe first)
 ├── README.md / STEPS.md                end-user docs
-├── app/     shims + USB stack (runs in place from this folder)
+├── app/     USBLM-V1 profile + USB stack (runs in place from this folder)
 ├── scripts/ install.bat, bind_winusb.cmd, run_meerk40t.cmd,
 │            selftest.cmd, diag.cmd
 ├── tools/   zadig.exe (signed WinUSB driver tool)
@@ -109,18 +110,33 @@ setup/
 └── logs/    every log the panel and the scripts produce
 ```
 
-### The shims
+### The device profile
 
-- `src/v1_meerk40t.py` - patches MeerK40t's embedded balormk driver for the
-  V1 wire layout. This is what the GUI uses.
-- `src/v1_galvoplotter.py` - the same profile for the standalone
-  galvoplotter library.
+`src/usblm_v1/` is a MeerK40t plugin. It registers the V1 board as a
+native device provider (`provider/device/usblmv1`) with its own driver,
+controller, console commands and GUI panels - stock balormk devices are
+untouched, both providers coexist:
 
-Both implement the same verified V1 profile: commands on EP 0x01 (14-byte
-packets with the 0x0002 prefix), 10-byte responses on EP 0x81, 3072-byte
-list chunks on EP 0x02, the board's chunk-ack drain, the buffered job model
-(queue all chunks, then execute once), and auto firmware upload from loader
-mode (PID 9990).
+- `plugin.py` / `device.py` - kernel registration and the device service
+- `driver.py` - the MeerK40t driver interface (subclasses balormk's BalorDriver)
+- `controller.py` - the V1 protocol: records, chunks, waits, recovery
+- `transport.py` - USB endpoints (EP 0x01/0x81, 3072-byte chunks on EP 0x02)
+- `commands.py` - the galvo console commands
+- `upstream_patches.py` - two upstream MeerK40t bug fixes (numpy 2 hull,
+  stale reference nodes on delete, issue #3253)
+
+The profile is pip-installable into a stock MeerK40t via the
+`meerk40t.extension` entry point (`pip install .`); the launcher
+(`src/run_meerk40t.py`) registers it explicitly for the packaged exe.
+
+`src/v1_galvoplotter.py` is the same V1 profile for the standalone
+galvoplotter library.
+
+Both implement the same verified V1 wire model: commands on EP 0x01
+(14-byte packets with the 0x0002 prefix), 10-byte responses on EP 0x81,
+3072-byte list chunks on EP 0x02, the board's chunk-ack drain, the
+buffered job model (queue all chunks, then execute once), and auto
+firmware upload from loader mode (PID 9990).
 
 ### Documentation
 

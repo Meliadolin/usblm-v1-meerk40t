@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """CAPABILITY TEST v2 - properly isolated.
-Order: light mode -> realtime commands -> list records (via shim flow,
+Order: light mode -> realtime commands -> list records (via profile flow,
 auto-recovery) -> axis commands LAST (they set the AXIS state flag).
 No laser power anywhere (mark current 0, MO closed after each run)."""
 import os
@@ -86,7 +86,7 @@ def main():
         except Exception as e:
             log(f"  {code:04X} {name:<22} FAIL {e}")
 
-    # ---------- 3. LIST RECORDS (via shim flow, auto-recovery) ----------
+    # ---------- 3. LIST RECORDS (via profile flow, auto-recovery) ----------
     log("")
     log("--- list records (each in a full job) ---")
     records = [
