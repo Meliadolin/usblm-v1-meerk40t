@@ -224,7 +224,10 @@ def assemble():
         src = os.path.join(ROOT, rel)
         if not os.path.isdir(src):
             fail(f"missing source dir: {rel}")
-        shutil.copytree(src, os.path.join(SETUP, "app", os.path.basename(rel)))
+        shutil.copytree(
+            src, os.path.join(SETUP, "app", os.path.basename(rel)),
+            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+        )
     for rel in PACKAGE_TEST_FILES:
         shutil.copy2(os.path.join(ROOT, rel), os.path.join(SETUP, "tests"))
     for rel in PACKAGE_DATA_FILES:
