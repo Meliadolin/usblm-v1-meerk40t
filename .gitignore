@@ -29,9 +29,6 @@ docs/TASK.txt
 docs/RESEARCH_V1_ECOSYSTEM.md
 TASK.txt
 
-# Local release notes (kept out of the public repo)
-CHANGELOG.md
-
 # Raw machine dumps (win7 driver/registry research scratch - kept on
 # disk, not published)
 docs/reference/

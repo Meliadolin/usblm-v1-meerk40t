@@ -33,6 +33,9 @@ jobs:
       - name: Run offline CI test (no board)
         run: python tests/ci_test.py
 
+      - name: Build the pip plugin wheel
+        run: pip wheel --no-deps -w wheelhouse_dist .
+
       - name: Zip the package
         shell: pwsh
         run: |
@@ -41,5 +44,7 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: usblm-v1-meerk40t-*.zip
+          files: |
+            usblm-v1-meerk40t-*.zip
+            wheelhouse_dist/*.whl
           generate_release_notes: true
