@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "usblm-v1"
+version = "1.1.0"
+description = "USBLM-V1 (BJJCZ, VID 9588 / PID 9999) device profile for MeerK40t"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "meerk40t>=0.9.9100",
+    "numpy>=1.24",
+    "pyusb>=1.2",
+]
+
+[project.entry-points."meerk40t.extension"]
+usblmv1 = "usblm_v1:plugin"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["usblm_v1"]

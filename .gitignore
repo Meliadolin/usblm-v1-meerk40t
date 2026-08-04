@@ -47,6 +47,7 @@ big_raster.txt
 # Python
 __pycache__/
 *.pyc
+*.egg-info/
 .venv/
 
 # OS
