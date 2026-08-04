@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.entry-points."meerk40t.extension"]
-usblmv1 = "usblm_v1:plugin"
+usblmv1 = "usblm_v1.plugin:plugin"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

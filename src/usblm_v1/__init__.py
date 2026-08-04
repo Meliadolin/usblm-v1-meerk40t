@@ -22,17 +22,3 @@ from . import upstream_patches  # noqa: F401
 __version__ = "1.1.0"
 
 upstream_patches.apply_upstream_patches()
-
-
-def __getattr__(name):
-    """Resolve the plugin entry point lazily (PEP 562).
-
-    ``import usblm_v1`` must stay light (no wx / meerk40t.gui imports).
-    ``usblm_v1:plugin`` entry points are resolved via getattr(), so the
-    plugin module is only imported when the kernel actually loads it.
-    """
-    if name == "plugin":
-        from .plugin import plugin
-
-        return plugin
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
