@@ -9,6 +9,8 @@ dead UI on the V1 (the board refuses 0x0015 correction payloads), so the
 scene registration here is a no-op placeholder.
 """
 
+from meerk40t.kernel import signal_listener
+
 
 def plugin(service, lifecycle):
     if lifecycle == "service":
@@ -38,8 +40,26 @@ def plugin(service, lifecycle):
             BalorOperationPanel,
         )
 
+        class V1Configuration(BalorConfiguration):
+            """
+            BalorConfiguration variant for the V1 device.
+
+            The upstream panel force-closes itself whenever the active device
+            name is not "balor" (see balorconfig.py on_device_changes). The
+            V1 device is named "usblmv1", so this override keeps the window
+            open while the V1 remains the active device.
+            """
+
+            @signal_listener("activate;device")
+            def on_device_changes(self, *args):
+                # Device activated, make sure we are still fine...
+                if self.context.device.name != "usblmv1":
+                    import wx  # pylint: disable=import-outside-toplevel
+
+                    wx.CallAfter(self.Close)
+
         service.register("window/Controller", BalorController)
-        service.register("window/Configuration", BalorConfiguration)
+        service.register("window/Configuration", V1Configuration)
 
         service.register("winpath/Controller", service)
         service.register("winpath/Configuration", service)

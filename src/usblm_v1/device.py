@@ -351,7 +351,10 @@ class V1Device(Service, Status):
                 "signals": "coolant_changed",
             },
         ]
-        self.register_choices("usblmv1", choices)
+        # Section names must match the lookups in the reused balormk panels
+        # (balorconfig.py options tuple) - the Configuration window renders
+        # whatever choices are registered under these names.
+        self.register_choices("balor", choices)
 
         def _use_percent_for_power():
             return getattr(self, "use_percent_for_power_display", True)
@@ -359,9 +362,9 @@ class V1Device(Service, Status):
         def _use_minute_for_speed():
             return getattr(self, "use_mm_min_for_speed_display", False)
 
-        self.register_choices("usblmv1-effects", get_effect_choices(self))
+        self.register_choices("balor-effects", get_effect_choices(self))
         self.register_choices(
-            "usblmv1-defaults",
+            "balor-defaults",
             get_operation_choices(
                 self,
                 default_cut_speed=150,
@@ -452,7 +455,7 @@ class V1Device(Service, Status):
                 "signals": "restart",
             },
         ]
-        self.register_choices("usblmv1-redlight", choices)
+        self.register_choices("balor-redlight", choices)
 
         choices = [
             {
@@ -517,7 +520,7 @@ class V1Device(Service, Status):
                 "tip": _("How fast do we travel when not cutting?"),
             },
         ]
-        self.register_choices("usblmv1-global", choices)
+        self.register_choices("balor-global", choices)
 
         choices = [
             {
@@ -617,7 +620,7 @@ class V1Device(Service, Status):
                 "section": "_90_Other",
             },
         ]
-        self.register_choices("usblmv1-global-timing", choices)
+        self.register_choices("balor-global-timing", choices)
 
         choices = [
             {
@@ -789,7 +792,7 @@ class V1Device(Service, Status):
                 "tip": _("Use hardware based input operation command"),
             },
         ]
-        self.register_choices("usblmv1-extra", choices)
+        self.register_choices("balor-extra", choices)
         self.kernel.root.coolant.claim_coolant(self, self.device_coolant)
 
         self.state = 0
