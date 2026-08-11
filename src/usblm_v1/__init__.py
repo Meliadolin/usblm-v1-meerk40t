@@ -19,6 +19,6 @@ Geomstr.hull, Elemental.remove_nodes issue #3253) - applied on import.
 """
 from . import upstream_patches  # noqa: F401
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 upstream_patches.apply_upstream_patches()

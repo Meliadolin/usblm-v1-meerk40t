@@ -7,7 +7,7 @@ import struct
 import sys
 import time
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)

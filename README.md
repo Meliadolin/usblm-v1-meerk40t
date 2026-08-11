@@ -60,7 +60,7 @@ power is **30%**.
 If MeerK40t is already installed from pip, the profile is just a plugin:
 
 ```
-pip install usblm_v1-1.1.0-py3-none-any.whl   # attached to the release
+pip install usblm_v1-1.1.1-py3-none-any.whl   # attached to the release
 pip install .                                 # or from this repo
 ```
 

@@ -19,7 +19,7 @@ LOG_DIR = os.path.join(ROOT, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG = os.path.join(LOG_DIR, "meerk_trace.log")
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 # capture crashes + stderr into the log (no console in frozen mode)
 try:

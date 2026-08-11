@@ -34,7 +34,7 @@ import os
 import struct
 import time
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 import libusb_bootstrap  # noqa: F401 - MUST be before usb.core
 

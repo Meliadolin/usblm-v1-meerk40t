@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.1.1 - 2026-08-11
+
+Bugfix release for the native device profile.
+
+- Config window now opens with all device tabs. The V1 choice sections
+  are registered under the balor* names the reused upstream panel looks
+  up, and the window stays open while the V1 is the active device.
+- Firmware upload is guarded: a missing sequence file or an unclaimable
+  loader reports a clear error instead of crashing the connect path.
+- abort() runs under the list lock so a reset can never land mid-chunk
+  and wedge the board firmware.
+- Footpedal reads are V1-safe: the board does not answer the balormk
+  read-port command, so the poll logs once and stays inert instead of
+  spamming errors during jobs.
+- Default power aligned to the shipped config (300 permille).
+- Trace log renamed from v1_shim_trace.log to v1_trace.log.
+- Offline CI passes 16/16, including the registration test updated for
+  the renamed choice sections.
+
 ## 1.1.0 - 2026-08-05
 
 The V1 board is now a native MeerK40t device. `src/usblm_v1/` registers

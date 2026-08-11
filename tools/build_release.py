@@ -31,7 +31,7 @@ SETUP = os.path.join(ROOT, "setup")
 CACHE = os.path.join(ROOT, "tools", ".cache")
 DIST = os.path.join(ROOT, "dist")
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 PYTHON_EMBED = {
     "file": "python-embed.zip",

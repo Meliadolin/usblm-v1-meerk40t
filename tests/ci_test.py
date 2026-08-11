@@ -38,7 +38,7 @@ def main():
     import upload_firmware
     check("all src modules import", True)
     for mod in (v1_controller, v1_galvoplotter, usblm_v1, upload_firmware):
-        check(f"{mod.__name__} has __version__", getattr(mod, "__version__", None) == "1.1.0")
+        check(f"{mod.__name__} has __version__", getattr(mod, "__version__", None) == "1.1.1")
 
     # 2. firmware upload sequence parses + is the known-good shape
     seq_path = os.path.join(os.path.dirname(SRC), "data",

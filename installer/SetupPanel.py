@@ -15,7 +15,7 @@ import zipfile
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 CREATE_NO_WINDOW = 0x08000000
 
