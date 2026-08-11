@@ -73,7 +73,7 @@ def main():
                 scan_windows_usb()
             except Exception as e:
                 _log(f"  windows scan failed: {e}")
-            check("board found", False, "- see v1_shim_trace.log for the Windows-side scan")
+            check("board found", False, "- see v1_trace.log for the Windows-side scan")
             return 1
     except Exception as e:
         check("pyusb/libusb", False, str(e))

@@ -129,7 +129,7 @@ Run `scripts\diag.cmd` and open `logs\diag_info.log` - it checks:
 3. `bound driver per PID` -> Service must be WinUSB
 
 Bring back the `logs\` folder: `install_log.txt`, `selftest_log.txt`,
-`diag_info.log`, `v1_shim_trace.log`, `meerk_trace.log` (everything
+`diag_info.log`, `v1_trace.log`, `meerk_trace.log` (everything
 logs into `logs\`).
 
 Everything is logged. The logs name the culprit.

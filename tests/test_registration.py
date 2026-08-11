@@ -116,8 +116,8 @@ check("op defaults",
       d["pulse_width_enabled"] is False and d["pulse_width"] == 4
       and d["frequency"] == 30.0 and d["rapid_enabled"] is False)
 
-attrs = [c.get("attr") for c in dev._registered["choices/usblmv1"]]
-redlight = [c.get("attr") for c in dev._registered["choices/usblmv1-redlight"]]
+attrs = [c.get("attr") for c in dev._registered["choices/balor"]]
+redlight = [c.get("attr") for c in dev._registered["choices/balor-redlight"]]
 check("no source choice", "source" not in attrs)
 check("no corfile choices",
       "corfile" not in attrs and "corfile_enabled" not in attrs)

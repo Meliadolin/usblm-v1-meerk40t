@@ -461,7 +461,7 @@ class V1Device(Service, Status):
             {
                 "attr": "default_power",
                 "object": self,
-                "default": 500.0,
+                "default": 300.0,
                 "type": float,
                 "style": "power",
                 "percent": _use_percent_for_power,

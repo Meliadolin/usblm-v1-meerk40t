@@ -1,4 +1,4 @@
-"""Progress tracing: logs\\v1_shim_trace.log in the package root
+"""Progress tracing: logs\\v1_trace.log in the package root
 (next to the exe when frozen, else three levels up from this file)."""
 import os
 import sys
@@ -13,7 +13,7 @@ else:
     )
 _TRACE_DIR = os.path.join(_TRACE_DIR, "logs")
 os.makedirs(_TRACE_DIR, exist_ok=True)
-_TRACE_PATH = os.path.join(_TRACE_DIR, "v1_shim_trace.log")
+_TRACE_PATH = os.path.join(_TRACE_DIR, "v1_trace.log")
 
 
 def trace(msg):

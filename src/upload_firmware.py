@@ -69,6 +69,11 @@ def find_loader():
     return usb.core.find(idVendor=0x9588, idProduct=0x9990)
 
 def upload(path=SEQ):
+    if not os.path.exists(path):
+        _log(f"upload: FAIL - firmware sequence file missing: {path}")
+        print(f"Firmware sequence file missing: {path}")
+        print("Reinstall the package (data\\v1_upload_sequence.dat ships with it).")
+        return False
     _log(f"upload: start ({os.path.basename(path)})")
     writes = load_sequence(path)
     dev = find_loader()
@@ -80,9 +85,12 @@ def upload(path=SEQ):
     print(f"Loader found: bus={dev.bus} addr={dev.address}, {len(writes)} writes to replay")
     try:
         dev.set_configuration()
-    except usb.core.USBError:
-        pass
-    usb.util.claim_interface(dev, 0)
+        usb.util.claim_interface(dev, 0)
+    except usb.core.USBError as e:
+        _log(f"upload: cannot claim the loader: {e}")
+        print(f"Cannot claim the loader (bus={dev.bus} addr={dev.address}): {e}")
+        print("Is another program using the board?")
+        return False
 
     t0 = time.time()
     ok = 0

@@ -226,6 +226,25 @@ class V1Controller(mk_ctrl.GalvoController):
                 break                      # nothing more pending
         return last
 
+    def read_port(self):
+        """V1-safe port read for the inherited footpedal poll. 0x0025
+        ReadPort never appears in the EZCAD capture (docs/PROTOCOL.md),
+        so board support is unverified - try once, return None if the
+        board does not answer (the poll then stays inert instead of
+        erroring every 0.5s; the first failure is logged once). If the
+        board answers, the footpedal works unchanged: stop/pause per
+        pedal_mode."""
+        try:
+            result = self._command(0x0025)
+        except (ConnectionError, usb.core.USBError, KeyError) as e:
+            if not getattr(self, "_read_port_traced", False):
+                trace(f"read_port: board does not answer 0x0025 ({e}) "
+                      "- footpedal inert")
+                self._read_port_traced = True
+            return None
+        self._read_port_traced = False
+        return result
+
     def wait_ready(self):
         """Bounded: 5s max. balormk's version loops forever."""
         t0 = time.time()
@@ -362,20 +381,27 @@ class V1Controller(mk_ctrl.GalvoController):
         cleanly back to 0x0220. StopList (0x0020) would leave the board
         PAUSED (state 0x238), which stalls later behavior. Clear both
         the board and the controller list buffer, no dummy empty-list
-        execute (the V1 board would actually run it)."""
-        if self.mode == mk_ctrl.DRIVER_STATE_RAW:
-            return
-        self._command(0x001F)         # StopExecute - clean stop
-        self.paused = False
-        self.set_fiber_mo(0)
-        self.reset_list()
-        self._list_new()
-        self._list_executing = False
-        self._number_of_list_packets = 0
-        self.set_fiber_mo(0)
-        self.port_off(bit=0)
-        self.write_port()
-        self.mode = mk_ctrl.DRIVER_STATE_RAPID
+        execute (the V1 board would actually run it).
+        Runs under _list_lock: a ResetList landing mid-chunk (abort
+        racing _list_end) wedges the firmware, so the abort waits for
+        any in-flight chunk write to finish first."""
+        self._list_lock.acquire()
+        try:
+            if self.mode == mk_ctrl.DRIVER_STATE_RAW:
+                return
+            self._command(0x001F)         # StopExecute - clean stop
+            self.paused = False
+            self.set_fiber_mo(0)
+            self.reset_list()
+            self._list_new()
+            self._list_executing = False
+            self._number_of_list_packets = 0
+            self.set_fiber_mo(0)
+            self.port_off(bit=0)
+            self.write_port()
+            self.mode = mk_ctrl.DRIVER_STATE_RAPID
+        finally:
+            self._list_lock.release()
 
     def _clear_pause(self):
         """If the board is PAUSED (bit 0x08 - a StopList landed during a

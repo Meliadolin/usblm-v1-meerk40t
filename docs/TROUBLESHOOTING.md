@@ -3,12 +3,12 @@
 Every item here is something that actually happened and was fixed. If your
 symptom isn't here, the logs will name it: everything writes to the
 `logs\` folder next to the exe (`install_log.txt`, `selftest_log.txt`,
-`diag_info.log`, `v1_shim_trace.log`, `meerk_trace.log`, `panel_log.txt`,
+`diag_info.log`, `v1_trace.log`, `meerk_trace.log`, `panel_log.txt`,
 `bind_winusb_log.txt`, `upload_log.txt`).
 
 **Reporting a problem:** reproduce it, then send the `logs\` folder from
 the package folder plus a Device Manager screenshot of the board.
-`v1_shim_trace.log` is the protocol-level trace (USB reads/writes, states)
+`v1_trace.log` is the protocol-level trace (USB reads/writes, states)
 and `meerk_trace.log` captures any Python traceback - together they usually
 pinpoint the fault exactly.
 
@@ -94,7 +94,7 @@ traceback (the exe has no console). Common causes:
   (which auto-uploads) or a replug.
 
 ### Job hangs in MeerK40t
-Close the GUI, check `logs\meerk_trace.log` and `logs\v1_shim_trace.log`.
+Close the GUI, check `logs\meerk_trace.log` and `logs\v1_trace.log`.
 The profile has bounded waits and self-healing reads - a hang means a
 USB-level problem (driver binding, cable) rather than a protocol
 deadlock. Replug the board, rerun the selftest.
@@ -119,7 +119,7 @@ and run scripts\install.bat again.
 
 - **Redlight button / `red` command does nothing visible.** On some
   machines the aiming dot is wired directly to the laser power supply and
-  is simply always on - the board's GPIO does not control it (verified
+  is always on - the board's GPIO does not control it (verified
   live: cycling all port bits changed nothing). The light pin setting
   only matters if your machine actually drives the dot from a GPIO.
 - **No elevation outside install steps.** `scripts\install.bat` and
